@@ -8,13 +8,6 @@ tagsRouter.use((req, res, next) => {
     next();
 });
 
-// tagsRouter.get('/', async (req, res) => {
-//     const tags = await getAllTags();
-
-//     res.send({
-//         tags
-//     });
-// });
 
 
 tagsRouter.get('/:tagName/posts', async (req, res, next) => {
@@ -24,8 +17,11 @@ tagsRouter.get('/:tagName/posts', async (req, res, next) => {
         // use our method to get posts by tag name from the db
         const thePosts = await getPostsByTagName(tagName)
         // send out an object to the client { posts: // the posts }
+        const posts = thePosts.filter(post => {
+            return post.active || (req.user && post.author.id === req.user.id);
+        });
         res.send({
-            posts: thePosts
+            posts: posts
         });
 
     } catch ({ name, message }) {
@@ -33,5 +29,9 @@ tagsRouter.get('/:tagName/posts', async (req, res, next) => {
         next({ name, message })
     }
 });
+
+
+
+
 
 module.exports = tagsRouter;
